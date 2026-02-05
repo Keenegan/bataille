@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Src\Domain;
 
-class Player
+final class Player
 {
     private string $name;
     private int $score = 0;
+
     /**
      * @var Card[]
      */
@@ -31,7 +34,7 @@ class Player
 
     public function hasCards(): bool
     {
-        return \count($this->hand) > 0;
+        return !empty($this->hand);
     }
 
     public function addPoint(): void

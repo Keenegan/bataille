@@ -1,20 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Src;
 
 use Src\Game\Bataille;
 use Src\Game\GameInterface;
 
-class GameRunner
+final class GameRunner
 {
-
     /**
      * Entrypoint of the program, you can create more Batailles, add more players, or change the deck size
-     * 
-     * Example :
+     *
+     * Exemple :
      * $this->run(new Bataille(
-     *  [new Player("Jhon"), new Player("Doe"), new Player("Lorem")],
-     *  30
+     *     [new Player("John"), new Player("Doe"), new Player("Lorem")],
+     *     30
      * ));
      */
     public function __construct()
@@ -29,16 +30,28 @@ class GameRunner
             $game->round();
         }
 
-        echo "Classement de la partie de " . $game->getGameName() . PHP_EOL;
-        $this->printWinner($game);
+        echo 'Classement de la partie de ' . $game->getGameName() . PHP_EOL;
+        echo str_repeat('-', 40) . PHP_EOL;
+
+        $this->printRanking($game);
     }
 
-    public function printWinner(GameInterface $game): void
+    private function printRanking(GameInterface $game): void
     {
         $players = $game->getPlayers();
-        usort($players, fn($a, $b) => $b->getScore() <=> $a->getScore());
+
+        usort(
+            $players,
+            static fn ($a, $b) => $b->getScore() <=> $a->getScore()
+        );
+
         foreach ($players as $player) {
-            echo $player->getName() . " : " . $player->getScore() . " points\n";
+            echo sprintf(
+                "%s : %d points%s",
+                $player->getName(),
+                $player->getScore(),
+                PHP_EOL
+            );
         }
     }
 }

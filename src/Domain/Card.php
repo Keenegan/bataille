@@ -1,13 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Src\Domain;
 
-class Card
+final class Card
 {
-    public int $value;
+    private int $value;
 
     public function __construct(int $value)
     {
         $this->value = $value;
+    }
+
+    public function getValue(): int
+    {
+        return $this->value;
     }
 }

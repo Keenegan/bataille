@@ -1,34 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Src\Game;
 
 use Src\Domain\Card;
 use Src\Domain\Player;
 
-
-class Bataille implements GameInterface
+final class Bataille implements GameInterface
 {
-
-    public const int DEFAULT_DECK_SIZE = 52;
+    public const DEFAULT_DECK_SIZE = 52;
 
     /**
      * @var Player[]
      */
     private array $players;
-    public int $deckSize;
 
+    private int $deckSize;
+
+    /**
+     * @param Player[] $players
+     */
     public function __construct(array $players = [], int $deckSize = self::DEFAULT_DECK_SIZE)
     {
         $this->players = $players ?: [
-            new Player("Joueur 1"),
-            new Player("Joueur 2")
+            new Player('Joueur 1'),
+            new Player('Joueur 2'),
         ];
 
-        $this->deckSize = $deckSize < \count($players) ? self::DEFAULT_DECK_SIZE : $deckSize;
+        $this->deckSize = $deckSize < count($this->players)
+            ? self::DEFAULT_DECK_SIZE
+            : $deckSize;
 
         $this->prepareGame();
     }
 
+    /**
+     * @return Player[]
+     */
     public function getPlayers(): array
     {
         return $this->players;
@@ -36,7 +45,7 @@ class Bataille implements GameInterface
 
     public function getGameName(): string
     {
-        return "bataille";
+        return 'bataille';
     }
 
     private function prepareGame(): void
@@ -49,9 +58,11 @@ class Bataille implements GameInterface
 
         shuffle($deck);
 
-        $decks = array_chunk($deck, ceil($this->deckSize / \count($this->players)));
-        foreach ($this->players as $key => $player) {
-            $player->setHand($decks[$key]);
+        $cardsPerPlayer = (int) ceil($this->deckSize / count($this->players));
+        $decks = array_chunk($deck, $cardsPerPlayer);
+
+        foreach ($this->players as $index => $player) {
+            $player->setHand($decks[$index] ?? []);
         }
     }
 
@@ -63,20 +74,19 @@ class Bataille implements GameInterface
             if (!$player->hasCards()) {
                 return;
             }
-            $card = $player->playFirstCard();
 
             $playedCards[] = [
                 'player' => $player,
-                'card' => $card
+                'card'   => $player->playFirstCard(),
             ];
         }
 
-        usort($playedCards, function ($a, $b) {
-            return $b['card']->value <=> $a['card']->value;
-        });
+        usort(
+            $playedCards,
+            static fn ($a, $b) => $b['card']->getValue() <=> $a['card']->getValue()
+        );
 
-        $winner = $playedCards[0]['player'];
-        $winner->addPoint();
+        $playedCards[0]['player']->addPoint();
     }
 
     public function isGameOver(): bool
@@ -86,7 +96,7 @@ class Bataille implements GameInterface
                 return true;
             }
         }
+
         return false;
     }
-
 }
